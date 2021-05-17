@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Print Studio Application</title>
+</head>
+
+<body>
+
+  <h1>Welcome {{user.username}}</h1>
+  <div class="mt-4">
+    <div class="d-flex justify-content-center links">
+        <a href="{% url 'logout' %}" class="ml-2">Logout</a>
+    </div>
+</div>
+<br>
+<br>
+<h3>User information:</h3>
+<br>
+<div class="mt-4">
+    <div class="d-flex justify-content-center links">
+        <p>Username:</p>
+        {{user.username}}
+        <br>
+        <p>First name:</p>
+        {{user.first_name}}
+        <br>
+        <p>Last name:</p>
+        {{user.last_name}}
+        <br>
+        <p>Email:</p>
+        {{user.email}}
+        <br>
+        <p>Password:</p>
+        {{user.password}}
+        <br>
+        <p>Phone:</p>
+        {{phone}}
+        <br>
+    </div>
+</div>
+<br>
+<br>
+
+
+<h3>Orders:</h3>
+<br>
+<div class="mt-4">
+    <div class="d-flex justify-content-center links">
+        {% for order in my_orders %}
+            {{order}}
+        {% endfor %}
+    </div>
+</div>
+<br>
+<br>
+
+
+<h3>Contact Us Forms:</h3>
+<br>
+<div class="mt-4">
+    <div class="d-flex justify-content-center links">
+        {% for contact in my_contactForms %}
+            {{contact}}
+        {% endfor %}
+    </div>
+</div>
+<br>
+<br>
+
+
+
+</body>
+</html> 
