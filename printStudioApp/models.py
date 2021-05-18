@@ -16,38 +16,15 @@ class CustomUser(models.Model):
 class Order(models.Model):
     userID = models.ForeignKey(User, related_name="orders", on_delete=models.CASCADE)
     orderCode = models.CharField(max_length=15, blank=False)
-    title = models.FileField(upload_to='documents')
-    ONE_SIDE = 1
-    TWO_SIDE = 2
-    PRINT_TYPE = (
-        (ONE_SIDE, 'one'),
-        (TWO_SIDE, 'two')
-    )
-
-    print_type = models.PositiveSmallIntegerField(choices=PRINT_TYPE)
-
-    CLAIMS = 1
-    SOFT = 2
-    SPIRAL = 3
-    BIND_TYPE = (
-        (CLAIMS, 'claims'),
-        (SOFT, 'soft'),
-        (SPIRAL, 'spiral')
-    )
-
-    bind_type = models.PositiveSmallIntegerField(choices=BIND_TYPE)
-
-    number_of_copies = models.PositiveIntegerField()
-
-    COLOR = 1
-    WB = 2
-    COLOR_TYPE = (
-        (COLOR, 'color'),
-        (WB, 'white-black')
-    )
-    color = models.PositiveSmallIntegerField(choices=COLOR_TYPE)
-
+    title = models.FileField()
+    print_type = models.CharField(max_length=10)
+    bind_type = models.CharField(max_length=10)
+    number_of_copies = models.IntegerField()
+    color = models.CharField(max_length=20)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:  
+        db_table = "printStudioApp_order"
 
     def __str__(self):
         return f'{self.id}. {self.userID.username}'

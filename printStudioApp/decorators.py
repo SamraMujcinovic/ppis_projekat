@@ -33,7 +33,7 @@ def admin_only(view_func):
             group = request.user.groups.all()[0].name
         
         if group == 'customer':
-            return redirect('customer')
+            return HttpResponse('You are not authorized to view this page')
         
         if group == 'admin':
             return view_func(request, *args, **kwargs)

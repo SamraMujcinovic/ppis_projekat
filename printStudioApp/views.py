@@ -10,11 +10,12 @@ from django.contrib import messages
 
 # Create your views here.
 from .models import *
-from .forms import OrderForm, CreateUserForm
+from .forms import OrderForm, CreateUserForm, ContactForm
 
 from .decorators import unauthenticated_user, admin_only, allowed_users
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
+from printStudioApp.functions import handle_uploaded_file
 
 
 def registerPage(request):
@@ -71,7 +72,7 @@ def loginPage(request):
 
 def logoutUser(request):
 	logout(request)
-	return redirect('login')
+	return redirect('home')
 
 
 @unauthenticated_user
@@ -79,7 +80,6 @@ def logoutUser(request):
 @admin_only
 def adminPage(request):
   
-    #provjeri da li je admin
     orders = Order.objects.all()
     customers = CustomUser.objects.all()
     
@@ -97,7 +97,7 @@ def adminPage(request):
 
 @unauthenticated_user
 @login_required(login_url='login')
-@allowed_users(['customer'])
+@allowed_users(['customer','admin'])
 def customerPage(request):
     customuserModel = CustomUser.objects.get(pk=request.user.id)
     phone = customuserModel.phoneNumber
@@ -113,3 +113,68 @@ def customerPage(request):
 def home(request):
     
     return render(request, 'home.html', {})
+
+
+@unauthenticated_user
+@login_required(login_url='login')
+@allowed_users(['customer','admin'])
+def orderPage(request):
+    
+    form = OrderForm()
+
+    if request.method == 'POST':
+        form = OrderForm(request.POST,request.FILES)
+        if form.is_valid():
+            handle_uploaded_file(request.FILES['title'])
+            #form.save()
+
+            userOrder = request.user
+            orderCode = form.cleaned_data.get('orderCode')
+            
+            title = request.FILES['title']
+            print_type = form.cleaned_data.get('print_type')
+            bind_type = form.cleaned_data.get('bind_type')
+            number_of_copies = form.cleaned_data.get('number_of_copies')
+            color = form.cleaned_data.get('color')
+            
+            orderForm = Order.objects.create(userID=userOrder, orderCode=orderCode, title=title,print_type=print_type,bind_type=bind_type,number_of_copies=number_of_copies,color=color)
+            orderForm.save()
+            messages.success(request, 'Order made successfully!')
+            if request.user.is_authenticated:
+                return redirect('customer')
+            return redirect('home')
+
+    context = {'form':form}
+    return render(request, 'order.html', context)
+
+def contactUsFormPage(request):
+
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            
+            nameForm = form.cleaned_data.get('name')
+            emailForm= form.cleaned_data.get('email')
+            messageForm= form.cleaned_data.get('message')
+            
+            contactForm = ContactUsForm.objects.create(name=nameForm, email=emailForm, message=messageForm)
+            contactForm.save()
+            messages.success(request, 'Message sent successfully!')
+            if request.user.is_authenticated:
+                return redirect('customer')
+            return redirect('home')
+
+    else:
+        if request.user.is_authenticated:
+            form = ContactForm(initial={'name': request.user.first_name, 'email': request.user.email})
+            context = {'form':form}
+            return render(request, 'contactUsForm.html', context)
+        else:
+            form = ContactForm()
+            context = {'form':form}
+            return render(request, 'contactUsForm.html', context)
+
+    context = {'form':form}
+    return render(request, 'contactUsForm.html', context)       
+
+    
