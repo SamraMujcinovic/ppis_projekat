@@ -57,13 +57,18 @@ input[type=submit]:hover {
     {{form}}
     
     <br>
-    <br>
+    <p>Uploaded file:   
     {% load static %}
     <a href="{% get_media_prefix %}{{form.title.value}}" download="{{form.title.value}}">{{form.title.value}}</a>
+  </p>
+    <br>
+    <br>
+    <div>
         {% if request.user.groups.all.0.name == "admin"%}
           <input type="hidden" name="_method" value="delete">
           <input type="submit" value="Delete">
         {% endif %}
+      </div>
     </form>
   </div>
 </div>

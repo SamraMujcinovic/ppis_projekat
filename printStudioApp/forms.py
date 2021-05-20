@@ -125,12 +125,8 @@ class CustomUserFormForAdmin(forms.Form):
 
 
 class ChangePassword(PasswordChangeForm):
-    old_password = forms.CharField(
-        label=("Old password"),
-        strip=False,
-        widget=forms.PasswordInput(attrs={'autocomplete': 'off', 'autofocus': False}),
-    )
+    old_password = forms.CharField(label='Old password', widget=forms.PasswordInput)
 
-    def __init__(self, user, *args, **kwargs):
-        self.user = user
-        super().__init__(*args, **kwargs)
+    fields = ['old_password', 'new_password1', 'new_password2']
+
+    old_password.widget.attrs.update({'autocomplete':'off', 'maxlength':'32'})

@@ -64,7 +64,7 @@ input[type=submit]:hover {
     <tr><th><label for="id_phoneNumber">Phonenumber:</label></th></tr>
     {{form.phoneNumber}}
 
-    <a href="{% url 'change_password' %}">Change Password</a>
+    <a href="{% url 'change_password' request.user.pk%}">Change Password</a>
     <input type="hidden" name="_method" value="post">
     <input type="submit" value="Update">
     </form>

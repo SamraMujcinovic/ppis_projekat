@@ -342,7 +342,7 @@ def viewContactDetailsPage(request, *args, **kwargs):
     return render(request, 'viewContactDetails.html', context)       
 
 def change_password(request, *args, **kwargs):
-    
+    search = kwargs.get('pk')
     if request.method == 'POST':
         form = ChangePassword(request.user, request.POST)
         print(form)
@@ -351,10 +351,11 @@ def change_password(request, *args, **kwargs):
             user, created = User.objects.update_or_create(pk=search,defaults={'password':passwordForm})
 
             user.set_password(passwordForm)
-            search = kwargs.get('pk')
+            user.save()
+            
             selectedcustomer, created = CustomUser.objects.update_or_create(pk=search, defaults={'customuser':user})
             selectedcustomer.save()            
-            update_session_auth_hash(request, user)  
+            #update_session_auth_hash(request, user)  
             messages.success(request, 'Your password was successfully updated!')
             return redirect('login')
         else:
