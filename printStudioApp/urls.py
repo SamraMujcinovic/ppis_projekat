@@ -21,5 +21,7 @@ urlpatterns = [
     path('contactForm/', views.contactUsFormPage, name="contactForm"),
     path('viewContactDetails/<int:pk>', views.viewContactDetailsPage, name="viewContactDetails"),
 
+    path("password_reset", views.password_reset_request, name="password_reset"),
+
     path('', views.home, name="home"),
 ]
