@@ -22,7 +22,7 @@
 <br>
 <div class="mt-4">
     <div class="d-flex justify-content-center links">
-        <a href="{% url 'order' %}" class="ml-2">Make an</a>
+        <a href="{% url 'order' %}" class="ml-2">Make an order</a>
     </div>
 </div>
 <br>
@@ -59,9 +59,11 @@
 <br>
 <div class="mt-4">
     <div class="d-flex justify-content-center links">
-        {% for order in my_orders %}
-            {{order}}
-        {% endfor %}
+        <ul>
+            {% for order in my_orders %}
+                <li><a href="{% url 'viewOrder' order.id %}">{{ order }}</a></li>
+            {% endfor %}
+            </ul>
     </div>
 </div>
 <br>
@@ -72,9 +74,11 @@
 <br>
 <div class="mt-4">
     <div class="d-flex justify-content-center links">
-        {% for contact in my_contactForms %}
-            {{contact}}
-        {% endfor %}
+        <ul>
+            {% for contact in my_contactForms %}
+                <li><a href="{% url 'viewContactDetails' contact.id %}">{{ contact }}</a></li>
+            {% endfor %}
+            </ul>
     </div>
 </div>
 <br>

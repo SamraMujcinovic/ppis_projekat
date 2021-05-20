@@ -26,9 +26,11 @@
 <br>
 <div class="mt-4">
     <div class="d-flex justify-content-center links">
+        <ul>
         {% for customer in customers %}
-            {{customer}}
+            <li><a href="{% url 'userProfile' customer.customuser.id %}">{{ customer }}</a></li>
         {% endfor %}
+    </ul>
     </div>
 </div>
 
@@ -37,9 +39,11 @@
 <br>
 <div class="mt-4">
     <div class="d-flex justify-content-center links">
-        {% for order in orders %}
-            {{order}}
-        {% endfor %}
+        <ul>
+            {% for order in orders %}
+                <li><a href="{% url 'viewOrder' order.id %}">{{ order }}</a></li>
+            {% endfor %}
+            </ul>
     </div>
 </div>
 <br>
@@ -50,9 +54,11 @@
 <br>
 <div class="mt-4">
     <div class="d-flex justify-content-center links">
-        {% for contact in contacts %}
-            {{contact}}
-        {% endfor %}
+        <ul>
+            {% for contact in contacts %}
+                <li><a href="{% url 'viewContactDetails' contact.id%}">{{ contact }}</a></li>
+            {% endfor %}
+            </ul>
     </div>
 </div>
 <br>

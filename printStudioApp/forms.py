@@ -1,16 +1,20 @@
-from django.forms import ModelForm, CharField
+from django.forms import ModelForm, CharField, fields
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django import forms
 from django.core.validators import validate_email
+from django.forms.forms import Form
 
 from .models import CustomUser, Order, ContactUsForm
+from django.contrib.auth.forms import PasswordChangeForm
+from django.core.exceptions import ValidationError
+
 
 
 class OrderForm(forms.Form):
     PRINT_TYPE=[('1','One side'),('2','Two side')]
     BIND_TYPE=[('1','Claims'),('2','Soft'),('3','Spiral')]
-    COLOR = [('4','Color'), ('2','Black-White')]
+    COLOR = [('1','Color'), ('2','Black-White')]
 
     orderCode = forms.CharField()
     title = forms.FileField()
@@ -21,6 +25,30 @@ class OrderForm(forms.Form):
 
     fields = ['orderCode','title','print_type','bind_type','number_of_copies','color']
 
+class ViewOrderForm(ModelForm):
+
+    PRINT_TYPE=[('1','One side'),('2','Two side')]
+    BIND_TYPE=[('1','Claims'),('2','Soft'),('3','Spiral')]
+    COLOR = [('1','Color'), ('2','Black-White')]
+
+    orderCode = forms.CharField(disabled=True)
+    title = forms.FileField(disabled=True)
+    print_type = forms.ChoiceField(choices=PRINT_TYPE, widget=forms.RadioSelect, disabled=True)
+    bind_type = forms.ChoiceField(choices=BIND_TYPE, widget=forms.RadioSelect, disabled=True)
+    number_of_copies = forms.IntegerField(disabled=True)
+    color = forms.ChoiceField(choices=COLOR, widget=forms.RadioSelect, disabled=True)
+    created_at = forms.DateTimeField(disabled=True)
+
+    class Meta:
+        model = Order
+        fields = '__all__'
+    
+    def __init__(self, *args, **kwargs):
+        super(ViewOrderForm, self).__init__(*args, **kwargs)
+        instance = getattr(self, 'instance', None)
+        if instance and instance.pk:
+            self.fields['userID'].disabled=True
+
 
 
 class CreateUserForm(UserCreationForm):
@@ -28,7 +56,7 @@ class CreateUserForm(UserCreationForm):
 
     class Meta:
         model = User
-        fields = ['email','password1','password2','first_name','last_name','username','phoneNumber']
+        fields = ['username','first_name','last_name','email','password1','password2']
 
 class ContactForm(forms.Form):
 
@@ -52,4 +80,34 @@ class ContactForm(forms.Form):
             raise forms.ValidationError("Enter your name!")
         return name
 
+class ViewContactForm(ModelForm):
+
+    name = forms.CharField(disabled = True)
+    email = forms.EmailField(disabled=True)
+    message = forms.CharField(disabled=True)
+
+    class Meta:
+        model = ContactUsForm
+        fields = ['name', 'email','message']
+
+
+class CustomUserForm(forms.Form):
+    username = forms.CharField()
+    first_name = forms.CharField()
+    last_name = forms.CharField()
+    email = forms.EmailField()
+    phoneNumber = forms.CharField()
     
+    fields = ['username','first_name','last_name','email','phoneNumber']
+
+
+class ChangePassword(PasswordChangeForm):
+    old_password = forms.CharField(
+        label=("Old password"),
+        strip=False,
+        widget=forms.PasswordInput(attrs={'autocomplete': 'off', 'autofocus': False}),
+    )
+
+    def __init__(self, user, *args, **kwargs):
+        self.user = user
+        super().__init__(*args, **kwargs)
