@@ -7,10 +7,12 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate, login, logout
 
 from django.contrib import messages
+from django import forms
+
 
 # Create your views here.
 from .models import *
-from .forms import  ChangePassword, CustomUserForm, OrderForm, CreateUserForm, ContactForm, ViewOrderForm, ViewContactForm
+from .forms import  ChangePassword, CustomUserForm, OrderForm, CreateUserForm, ContactForm, ViewOrderForm, ViewContactForm, CustomUserFormForAdmin
 
 from .decorators import unauthenticated_user, admin_only, allowed_users
 from django.contrib.auth.decorators import login_required
@@ -32,7 +34,6 @@ def registerPage(request):
     if request.method == 'POST':
         form = CreateUserForm(request.POST)
         if form.is_valid():
-            # form.save()
             firstname= form.cleaned_data.get('first_name')
             lastname= form.cleaned_data.get('last_name')
             emailvalue= form.cleaned_data.get('email')
@@ -123,47 +124,71 @@ def customerPage(request):
 def userProfilePage(request, *args, **kwargs):
     form = CustomUserForm()
     method = request.POST.get('_method', '').lower()
+    selectedCustomer = None
+    search = kwargs.get('pk')
+    if(request.user.pk != search and request.user.groups.all()[0].name != "admin" or User.objects.filter(pk=search).exists()==False):
+        return HttpResponse('You are not authorized to view this page')
 
     if method == 'post':
         form = CustomUserForm(request.POST)
         if form.is_valid():
-            selectedCustomer = None
-            search = kwargs.get('pk')
+            
+            
             if search:
                 selectedCustomer = CustomUser.objects.filter(pk=search)
                 selectedCustomer_list = list(selectedCustomer)
                 selectedCustomer = selectedCustomer_list[0]
             
             usernameForm = form.cleaned_data.get('username')
+            
             firstnameForm = form.cleaned_data.get('first_name')
             lastnameForm = form.cleaned_data.get('last_name')
             emailForm= form.cleaned_data.get('email')
-            #passwordForm = form.cleaned_data.get('password')
             phoneNumberForm= form.cleaned_data.get('phoneNumber')
             
-            user, created = User.objects.update_or_create(pk=search,defaults={'first_name':firstnameForm, 'last_name':lastnameForm, 'email':emailForm,'username':usernameForm})
-            #user.set_password(user.password)
-            my_group = Group.objects.get(name='customer') 
-            my_group.user_set.add(user)
-            user.save()
-            customer, created = CustomUser.objects.update_or_create(pk=search, defaults={'customuser':user,'phoneNumber': phoneNumberForm})
-            customer.save()
-            
-            messages.success(request, 'User updated successfully!!')
-            return redirect('customer')
+            try:
+                user, created = User.objects.update_or_create(pk=search,defaults={'first_name':firstnameForm, 'last_name':lastnameForm, 'email':emailForm,'username':usernameForm})
+                my_group = Group.objects.get(name='customer') 
+                my_group.user_set.add(user)
+                user.save()
+                customer, created = CustomUser.objects.update_or_create(pk=search, defaults={'customuser':user,'phoneNumber': phoneNumberForm})
+                customer.save()
+                
+                messages.success(request, 'User updated successfully!!')
+                return redirect('customer')
+            except:
+                messages.error(request, 'User with username ' + usernameForm + ' already exists!!')
+                form = CustomUserForm({'username':selectedCustomer.customuser.username,'first_name':selectedCustomer.customuser.first_name,'last_name':selectedCustomer.customuser.last_name,'email':selectedCustomer.customuser.email,'password':selectedCustomer.customuser.password,'phoneNumber':selectedCustomer.phoneNumber})
+                context = {'form':form}
+                return render(request, 'userProfile.html', context)
     else:
         if request.user.is_authenticated:
-            form = CustomUserForm()
-            print(request)
             search = kwargs.get('pk')
             if search:
                 selectedCustomer = CustomUser.objects.filter(pk=search)
                 selectedCustomer_list = list(selectedCustomer)
                 selectedCustomer = selectedCustomer_list[0]
                 print(selectedCustomer)
-                form = CustomUserForm({'username':selectedCustomer.customuser.username,'first_name':selectedCustomer.customuser.first_name,'last_name':selectedCustomer.customuser.last_name,'email':selectedCustomer.customuser.email,'password':selectedCustomer.customuser.password,'phoneNumber':selectedCustomer.phoneNumber})
+            if request.user.groups.all()[0].name == "admin" and request.user.username != selectedCustomer.customuser.username:
+                form = CustomUserFormForAdmin()
+                print(request)
+                form = CustomUserFormForAdmin({'username':selectedCustomer.customuser.username,'first_name':selectedCustomer.customuser.first_name,'last_name':selectedCustomer.customuser.last_name,'email':selectedCustomer.customuser.email,'password':selectedCustomer.customuser.password,'phoneNumber':selectedCustomer.phoneNumber})
                 context = {'form':form}
-                return render(request, 'userProfile.html', context)
+                print(form)
+                return render(request, 'viewUserForAdmin.html', context)
+            else:
+                form = CustomUserForm()
+                print(request)
+                search = kwargs.get('pk')
+                if search:
+                    selectedCustomer = CustomUser.objects.filter(pk=search)
+                    selectedCustomer_list = list(selectedCustomer)
+                    selectedCustomer = selectedCustomer_list[0]
+                    print(selectedCustomer)
+                    form = CustomUserForm({'username':selectedCustomer.customuser.username,'first_name':selectedCustomer.customuser.first_name,'last_name':selectedCustomer.customuser.last_name,'email':selectedCustomer.customuser.email,'password':selectedCustomer.customuser.password,'phoneNumber':selectedCustomer.phoneNumber})
+                    context = {'form':form}
+                    print(form)
+                    return render(request, 'userProfile.html', context)
             
 
     context = {'form':form}
@@ -184,9 +209,6 @@ def orderPage(request):
     if request.method == 'POST':
         form = OrderForm(request.POST,request.FILES)
         if form.is_valid():
-            handle_uploaded_file(request.FILES['title'])
-            #form.save()
-
             userOrder = request.user
             orderCode = form.cleaned_data.get('orderCode')
             
@@ -207,6 +229,14 @@ def orderPage(request):
     context = {'form':form}
     return render(request, 'order.html', context)
 
+def download(request,path):
+    file_path=os.path.join(settings.MEDIA_ROOT,path)
+    if os.path.exists(file_path):
+        with open(file_path,'rb')as fh:
+            response=HttpResponse(fh.read(),content_type="application/adminupload")
+            response['Content-Disposition']='inline;filename='+os.path.basename(file_path)
+            return response
+    raise Http404	
 
 @unauthenticated_user
 @login_required(login_url='login')
@@ -214,6 +244,15 @@ def orderPage(request):
 def viewOrderPage(request, *args, **kwargs):
     form = ViewOrderForm()
     method = request.POST.get('_method', '').lower()
+    search = kwargs.get('pk')
+    my_orders = Order.objects.filter(userID=request.user)
+    ok = False
+    for i in range(len(my_orders)):
+        if my_orders[i].pk == search:
+            ok=True
+
+    if(ok == False and request.user.groups.all()[0].name != "admin" or Order.objects.filter(pk=search).exists()==False):
+        return HttpResponse('You are not authorized to view this page')
 
     if method == 'delete':
             search = kwargs.get('pk')
@@ -228,6 +267,7 @@ def viewOrderPage(request, *args, **kwargs):
                 selectedOrder_list = list(selectedOrder)
                 selectedOrder = selectedOrder_list[0]
                 form = ViewOrderForm(instance=selectedOrder)
+                form.fields['title'].widget = forms.HiddenInput()
                 context = {'form':form}
                 return render(request, 'viewOrder.html', context)
 
@@ -271,6 +311,15 @@ def contactUsFormPage(request):
 def viewContactDetailsPage(request, *args, **kwargs):
     form = ViewContactForm()
     method = request.POST.get('_method', '').lower()
+    search = kwargs.get('pk')
+    my_contactForms = list(ContactUsForm.objects.filter(email=request.user.email))
+    ok = False
+    for i in range(len(my_contactForms)):
+        if my_contactForms[i].pk == search:
+            ok=True
+
+    if(ok == False and request.user.groups.all()[0].name != "admin" or ContactUsForm.objects.filter(pk=search).exists()==False):
+        return HttpResponse('You are not authorized to view this page')
 
     if method == 'delete':
             search = kwargs.get('pk')
@@ -305,7 +354,7 @@ def change_password(request, *args, **kwargs):
             search = kwargs.get('pk')
             selectedcustomer, created = CustomUser.objects.update_or_create(pk=search, defaults={'customuser':user})
             selectedcustomer.save()            
-            update_session_auth_hash(request, user)  # Important!
+            update_session_auth_hash(request, user)  
             messages.success(request, 'Your password was successfully updated!')
             return redirect('login')
         else:

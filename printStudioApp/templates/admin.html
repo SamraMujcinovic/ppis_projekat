@@ -28,7 +28,7 @@
     <div class="d-flex justify-content-center links">
         <ul>
         {% for customer in customers %}
-            <li><a href="{% url 'userProfile' customer.customuser.id %}">{{ customer }}</a></li>
+            <li><a href="{% url 'userProfileForAdmin' customer.customuser.id %}">{{ customer }}</a></li>
         {% endfor %}
     </ul>
     </div>

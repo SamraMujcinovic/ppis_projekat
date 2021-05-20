@@ -1,4 +1,4 @@
 def handle_uploaded_file(f):  
-    with open('printStudioApp/static/upload/'+f.name, 'wb+') as destination:  
+    with open('/media/'+f.name, 'wb+') as destination:  
         for chunk in f.chunks():  
             destination.write(chunk)

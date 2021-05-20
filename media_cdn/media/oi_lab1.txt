@@ -1,0 +1,110 @@
+using LinearAlgebra
+
+function rijesi_simpleks(ST,ibasic)
+  red = size(ST,1) 
+  kolona = size(ST,2) 
+  z_red = ST[red,1:(end-1)]
+  z_red[z_red.<0].= NaN
+  max_kolona = maximum(filter(!isnan,z_red)) 
+  if max_kolona > 0
+      max_indeks = findall(x->x==max_kolona, z_red) 
+      min_red = Inf 
+      min_indeks = 0 
+      for i in 1:red-1
+          if all(ST[i, max_indeks].>0)
+              temp_min = ST[i, kolona] / ST[i, max_indeks] 
+              if all(temp_min.<min_red)
+                  min_red = temp_min 
+                  min_indeks = i 
+              end
+          end
+      end
+      koef = ST[min_indeks,max_indeks] 
+      ibasic[min_indeks] = max_indeks[1] 
+      ST[min_indeks, :] = ST[min_indeks, :]./koef 
+      for i in 1:red
+          if i != min_indeks 
+              k = -ST[i,max_indeks] 
+              ST[i, 1:end] = ST[i, 1:end].+ST[min_indeks, 1:end].*k 
+          end
+      end
+      ST, ibasic = rijesi_simpleks(ST, ibasic)
+  end
+  return ST, ibasic
+end
+
+function simpleks(A,b,c)
+  red = size(A,1)
+  kolona = size(A,2)
+  dodatne = Matrix{Int}(I, red, red)
+  ST = [A dodatne b]
+  ST = [ST; c zeros(1,red) 0]
+  ibasic = zeros(1, red)
+  for i in 1:red
+    ibasic[i] = i+kolona
+  end
+  ST, ibasic = rijesi_simpleks(ST,ibasic)
+  Z = -ST[red+1, red+kolona+1]
+  X = zeros(1, red+kolona)
+  for i in 1:red
+      X[convert(Int, ibasic[i])] = ST[i, red+kolona+1] 
+  end
+  status = 0
+  return Z, X, status 
+end
+--------------------------------
+
+using LinearAlgebra
+
+function rijesi_dualni_simpleks(ST,ibasic)
+  red = size(ST,1) 
+  kolona = size(ST,2) 
+  z_kolona = ST[1:(end-1), kolona]
+  z_kolona[z_kolona.<0].= NaN
+  min_red = minimum(filter(!isnan, z_kolona)) 
+  if min_red > 0
+      min_indeks = findall(x->x==min_red, z_kolona) 
+      min_kolona = Inf 
+      min_indeks_v2 = 0 
+      for i in 1:kolona-1
+          if all(ST[min_indeks, i].<0)
+              temp_min = ST[red, i] / ST[min_indeks, i] 
+              if all(temp_min.<min_kolona)
+                  min_kolona = temp_min 
+                  min_indeks_v2 = i 
+              end
+          end
+      end
+      koef = ST[min_indeks,min_indeks_v2] 
+      ibasic[min_indeks] = min_indeks_v2[1] 
+      ST[min_indeks, :] = ST[min_indeks, :]./koef 
+      for i in 1:red
+          if i != min_indeks 
+              k = -ST[i, min_indeks_v2] 
+              ST[i, 1:end] = ST[i, 1:end].+ST[min_indeks, 1:end].*k 
+          end
+      end
+      ST, ibasic = rijesi_dualni_simpleks(ST, ibasic)
+  end
+  return ST, ibasic
+end
+
+function dual_simpleks(A,b,c)
+  red = size(A,1)
+  kolona = size(A,2)
+  dodatne = Matrix{Int}(I, red, red)
+  ST = [A dodatne b]
+  ST = [ST; c zeros(1,red) 0]
+  ibasic = zeros(1, red)
+  for i in 1:red
+    ibasic[i] = i+kolona
+  end
+  ST, ibasic = rijesi_dualni_simpleks(ST, ibasic)
+  Z = -ST[red+1, red+kolona+1]
+  X = zeros(1, red+kolona)
+  for i in 1:red
+      X[convert(Int, ibasic[i])] = ST[i, red+kolona+1] 
+  end
+  status = 0
+  return Z, X, status 
+end

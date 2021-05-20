@@ -32,16 +32,18 @@ class ViewOrderForm(ModelForm):
     COLOR = [('1','Color'), ('2','Black-White')]
 
     orderCode = forms.CharField(disabled=True)
-    title = forms.FileField(disabled=True)
+    title = forms.FileField()
     print_type = forms.ChoiceField(choices=PRINT_TYPE, widget=forms.RadioSelect, disabled=True)
     bind_type = forms.ChoiceField(choices=BIND_TYPE, widget=forms.RadioSelect, disabled=True)
     number_of_copies = forms.IntegerField(disabled=True)
     color = forms.ChoiceField(choices=COLOR, widget=forms.RadioSelect, disabled=True)
     created_at = forms.DateTimeField(disabled=True)
+    
 
     class Meta:
         model = Order
         fields = '__all__'
+        
     
     def __init__(self, *args, **kwargs):
         super(ViewOrderForm, self).__init__(*args, **kwargs)
@@ -99,6 +101,27 @@ class CustomUserForm(forms.Form):
     phoneNumber = forms.CharField()
     
     fields = ['username','first_name','last_name','email','phoneNumber']
+
+    def __init__(self, *args, **kwargs):
+        super(CustomUserForm, self).__init__(*args, **kwargs)
+        self.fields['email'].widget.attrs['readonly'] = True
+
+class CustomUserFormForAdmin(forms.Form):
+    username = forms.CharField()
+    first_name = forms.CharField()
+    last_name = forms.CharField()
+    email = forms.EmailField()
+    phoneNumber = forms.CharField()
+    
+    fields = ['username','first_name','last_name','email','phoneNumber']
+
+    def __init__(self, *args, **kwargs):
+        super(CustomUserFormForAdmin, self).__init__(*args, **kwargs)
+        self.fields['username'].widget.attrs['readonly'] = True
+        self.fields['first_name'].widget.attrs['readonly'] = True
+        self.fields['last_name'].widget.attrs['readonly'] = True
+        self.fields['email'].widget.attrs['readonly'] = True
+        self.fields['phoneNumber'].widget.attrs['readonly'] = True
 
 
 class ChangePassword(PasswordChangeForm):

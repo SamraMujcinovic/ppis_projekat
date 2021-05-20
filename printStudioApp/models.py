@@ -19,7 +19,7 @@ class CustomUser(models.Model):
 class Order(models.Model):
     userID = models.ForeignKey(User, related_name="orders", on_delete=models.CASCADE)
     orderCode = models.CharField(max_length=15, blank=False)
-    title = models.FileField()
+    title = models.FileField(upload_to='media')
     print_type = models.CharField(max_length=10)
     bind_type = models.CharField(max_length=10)
     number_of_copies = models.IntegerField()

@@ -53,16 +53,29 @@ input[type=submit]:hover {
 <div class="container">
   <form method="POST" action="">
     {% csrf_token %}
-    {{form}}
+    <tr><th><label for="id_username">Username:</label></th></tr>
+    {{form.username}}
+    <tr><th><label for="id_first_name">First name:</label></th></tr>
+    {{form.first_name}}
+    <tr><th><label for="id_last_name">Last name:</label></th></tr>
+    {{form.last_name}}
+    <tr><th><label for="id_email">Email:</label></th></tr>
+    {{form.email}}
+    <tr><th><label for="id_phoneNumber">Phonenumber:</label></th></tr>
+    {{form.phoneNumber}}
+
     <a href="{% url 'change_password' %}">Change Password</a>
     <input type="hidden" name="_method" value="post">
     <input type="submit" value="Update">
     </form>
   </div>
+  {% for message in messages %}
+    {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+					<p id="messages">{{message}}</p>
+          {% endif %}
+				{% endfor %}
+
 </div>
-
-
-{{form.errors}}
 
 </body>
 </html>
