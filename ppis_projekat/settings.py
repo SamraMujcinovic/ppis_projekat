@@ -27,7 +27,13 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['localhost']
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'printstudioapp.ppis@gmail.com'
+EMAIL_HOST_PASSWORD = 'kkfoobdqckfdnknt'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+DEFAULT_FROM_EMAIL = 'PrintStudioApp Team <noreply@printStudioApp.com>'
 
 # Application definition
 
@@ -40,7 +46,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'printStudioApp',
     'rest_framework',
-    'crispy_forms'
+    'crispy_forms',
+    
 ]
 
 MIDDLEWARE = [

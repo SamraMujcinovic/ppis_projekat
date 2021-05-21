@@ -400,7 +400,8 @@ def password_reset_request(request):
                         send_mail(subject, email, 'smujcinovi1@etf.unsa.ba' , [user.email], fail_silently=False)
                     except BadHeaderError:
                         return HttpResponse('Invalid header found.')
-                    return redirect ("/password_reset/done/")
+                    messages.success(request, 'A message with reset password instructions has been sent to your inbox.')
+                    return redirect ('home')
     
     password_reset_form = PasswordResetForm()
     return render(request=request, template_name="password/password_reset.html", context={"password_reset_form":password_reset_form})

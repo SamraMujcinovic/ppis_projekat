@@ -5,6 +5,10 @@
   <title>Print Studio Application</title>
 </head>
 
+{% for message in messages %}
+	<p id="messages">{{message}}</p>
+	{% endfor %}
+
 <body>
 
   <h1>Welcome to Our WebApp</h1>
