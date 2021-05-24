@@ -1,6 +1,6 @@
 import re
 from django.shortcuts import render, redirect 
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.forms import inlineformset_factory
 from django.contrib.auth.forms import UserCreationForm, PasswordResetForm
 
@@ -34,9 +34,11 @@ from django.utils.http import urlsafe_base64_encode
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.encoding import force_bytes
 from django.core.mail import send_mail, BadHeaderError
+from rest_framework import viewsets
+
 
 def registerPage(request):
-    
+
     form = CreateUserForm()
     if request.method == 'POST':
         form = CreateUserForm(request.POST)
@@ -62,8 +64,11 @@ def registerPage(request):
 
 def loginPage(request):
     if request.method == 'POST':
+        print("uslo u login")
+        
         username = request.POST.get('username')
         password =request.POST.get('password')
+        print(request.POST)
             
         user = authenticate(request, username=username, password=password)
             
@@ -73,13 +78,13 @@ def loginPage(request):
             if user.groups.exists():
                 group = user.groups.all()[0].name
             
-            if group=='admin':
-                return redirect('adminn')
-            elif group=='customer':
-                return redirect('customer')
-            else:
-                return HttpResponse('You are not authorized to view this page')
-
+            #if group=='admin':
+             #   return redirect('adminn')
+            #elif group=='customer':
+             #   return redirect('customer')
+            #else:
+             #   return HttpResponse('You are not authorized to view this page')
+            return HttpResponseRedirect('/userProfile/%d'%request.user.id)
         else:
             messages.info(request, 'Username OR password is incorrect')
 
@@ -87,15 +92,14 @@ def loginPage(request):
     return render(request, 'login.html', context)
 
 def logoutUser(request):
-	logout(request)
-	return redirect('home')
+    logout(request)
+    return redirect('login')
 
 
 @unauthenticated_user
 @login_required(login_url='login')
 @admin_only
 def adminPage(request):
-  
     orders = Order.objects.all()
     customers = CustomUser.objects.all()
     
@@ -104,6 +108,7 @@ def adminPage(request):
     total_orders = orders.count()
 
     contacts = ContactUsForm.objects.all()
+
 
     context = {'orders':orders, 'customers':customers,
 	'total_orders':total_orders,'total_customers':total_customers,'contacts':contacts }
@@ -162,7 +167,7 @@ def userProfilePage(request, *args, **kwargs):
                 customer.save()
                 
                 messages.success(request, 'User updated successfully!!')
-                return redirect('customer')
+                return redirect('userProfile')
             except:
                 messages.error(request, 'User with username ' + usernameForm + ' already exists!!')
                 form = CustomUserForm({'username':selectedCustomer.customuser.username,'first_name':selectedCustomer.customuser.first_name,'last_name':selectedCustomer.customuser.last_name,'email':selectedCustomer.customuser.email,'password':selectedCustomer.customuser.password,'phoneNumber':selectedCustomer.phoneNumber})
@@ -205,6 +210,10 @@ def home(request):
     
     return render(request, 'home.html', {})
 
+def about(request):
+    
+    return render(request, 'about.html', {})
+
 
 @unauthenticated_user
 @login_required(login_url='login')
@@ -214,8 +223,11 @@ def orderPage(request):
     form = OrderForm()
 
     if request.method == 'POST':
+        print("uslo u post u order")
         form = OrderForm(request.POST,request.FILES)
         if form.is_valid():
+            print("uslo u post u order valid")
+
             userOrder = request.user
             orderCode = form.cleaned_data.get('orderCode')
             
@@ -273,7 +285,8 @@ def viewOrderPage(request, *args, **kwargs):
                 selectedOrder = Order.objects.filter(pk=search)
                 selectedOrder_list = list(selectedOrder)
                 selectedOrder = selectedOrder_list[0]
-                form = ViewOrderForm(instance=selectedOrder)
+                userOrder = list(User.objects.filter(pk=selectedOrder.userID.pk))[0]
+                form = ViewOrderForm(instance=selectedOrder, initial={'userID':userOrder.username})
                 form.fields['title'].widget = forms.HiddenInput()
                 context = {'form':form}
                 return render(request, 'viewOrder.html', context)
@@ -283,11 +296,11 @@ def viewOrderPage(request, *args, **kwargs):
     return render(request, 'viewOrder.html', context)
 
 def contactUsFormPage(request):
-
+    print(request.POST)
     if request.method == 'POST':
         form = ContactForm(request.POST)
         if form.is_valid():
-            
+            print("uslo u formu")
             nameForm = form.cleaned_data.get('name')
             emailForm= form.cleaned_data.get('email')
             messageForm= form.cleaned_data.get('message')
@@ -401,7 +414,53 @@ def password_reset_request(request):
                     except BadHeaderError:
                         return HttpResponse('Invalid header found.')
                     messages.success(request, 'A message with reset password instructions has been sent to your inbox.')
-                    return redirect ('home')
+                    return redirect ('password_reset_done')
     
     password_reset_form = PasswordResetForm()
     return render(request=request, template_name="password/password_reset.html", context={"password_reset_form":password_reset_form})
+
+@unauthenticated_user
+@login_required(login_url='login')
+@allowed_users(['customer','admin'])
+def listOrders(request):
+    context = {}
+    orders = Order.objects.all()
+
+    if request.user.groups.all()[0].name == "admin":
+        context = {'orders': orders }
+    else:
+        my_Orders = Order.objects.filter(userID = request.user.pk)
+        context = {'orders':my_Orders }
+
+    return render(request, 'listOrders.html', context)
+
+
+@unauthenticated_user
+@login_required(login_url='login')
+@admin_only
+def listCustomers(request):
+    context = {}
+    
+    customers = CustomUser.objects.all()
+
+    context = {'customers':customers }
+    
+    return render(request, 'listCustomers.html', context)
+
+
+@unauthenticated_user
+@login_required(login_url='login')
+@allowed_users(['customer','admin'])
+def listContactForms(request):
+    context = {}
+
+    contacts = ContactUsForm.objects.all()
+
+    if request.user.groups.all()[0].name == "admin":
+        context = {'contacts': contacts }
+    else:
+        my_contactForms = ContactUsForm.objects.filter(email=request.user.email)
+        context = {'contacts':my_contactForms }
+
+
+    return render(request, 'listContactForms.html', context)

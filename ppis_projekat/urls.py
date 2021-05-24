@@ -20,7 +20,12 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.conf.urls import url
 from django.views.static import serve
+from rest_framework import routers
+from printStudioApp import views
 
+
+router = routers.DefaultRouter()
+router.register(r'login', views.loginPage, 'login')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
