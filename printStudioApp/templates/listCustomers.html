@@ -68,9 +68,15 @@
         }
 	</style>
 	
-	<title>Sign up - Progressus Bootstrap template</title>
+	<title>Customers</title>
 
-	<link rel="shortcut icon" href={% static 'images/gt_favicon.png' %}>
+	<link rel="apple-touch-icon" sizes="76x76" href={% static 'images/apple-touch-icon.png' %}>
+	<link rel="icon" type="image/png" sizes="32x32" href={% static 'images/favicon-32x32.png' %}>
+	<link rel="icon" type="image/png" sizes="16x16" href={% static 'images/favicon-16x16.png' %}>
+	<link rel="manifest" href={% static 'images/site.webmanifest' %}>
+	<link rel="mask-icon" href={% static 'images/safari-pinned-tab.svg' %} color="#5bbad5">
+	<meta name="msapplication-TileColor" content="#da532c">
+	<meta name="theme-color" content="#ffffff">
 	
 	<link rel="stylesheet" media="screen" href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,700">
 	<link rel="stylesheet" href={% static 'css/bootstrap.min.css' %}>
@@ -99,8 +105,6 @@
 			<div class="navbar-collapse collapse">
 				<ul class="nav navbar-nav pull-right">
 					<li><a href={% url 'home' %}>Home</a></li>
-					<li><a href={% url 'about' %}>About</a></li>
-					
 					<li><a href={% url 'contactForm' %}>Contact</a></li>
 					{% if request.user.is_authenticated %}
                     <li><a href={% url 'order' %}>Make an order</a></li>
@@ -124,9 +128,9 @@
 		<ol class="breadcrumb">
 			<li><a href={% url 'home' %}>Home</a></li>
             {% if request.user.groups.all.0.name == "admin"%}
-            <li><a href={% url 'adminn' %}>Admin</a></li>
+            <li><a href={% url 'userProfile' user.id %}>Admin</a></li>
             {% else %}
-            <li><a href={% url 'customer' %}>Customer</a></li>
+            <li><a href={% url 'userProfile' user.id%}>Customer</a></li>
             {% endif %}
 			<li class="active">Customers</li>
 		</ol>
@@ -170,6 +174,13 @@
                 <h3>Customers:</h3>
                     <br>
                     <table>
+						<tr>
+							<th>First name</th>
+							<th>Last name</th>
+							<th>Username</th>
+							<th>Email</th>
+							<th>Phone</th>
+						</tr>
                         {% for customer in customers %}
                         <tr>
                             <th> {{ customer.customuser.first_name }} </th>
@@ -199,10 +210,10 @@
 					<div class="col-md-3 widget">
 						<h3 class="widget-title">Contact</h3>
 						<div class="widget-body">
-							<p>+234 23 9873237<br>
-								<a href="mailto:#">some.email@somewhere.com</a><br>
+							<p>+387 33 750 231<br>
+								<a href="mailto:#">printstudioapp.ppis@gmail.com</a><br>
 								<br>
-								234 Hidden Pond Road, Ashland City, TN 37015
+								Zmaja od Bosne bb, Sarajevo, 71000
 							</p>	
 						</div>
 					</div>
@@ -239,8 +250,6 @@
 						<div class="widget-body">
 							<p class="simplenav">
 								<a href="#">Home</a> | 
-								<a href={% url 'about' %}>About</a> |
-								
 								<a href={% url 'contactForm' %}>Contact</a> |
 								<b><a href={% url 'register' %}>Sign up</a></b>
 							</p>

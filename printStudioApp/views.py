@@ -86,7 +86,7 @@ def loginPage(request):
              #   return HttpResponse('You are not authorized to view this page')
             return HttpResponseRedirect('/userProfile/%d'%request.user.id)
         else:
-            messages.info(request, 'Username OR password is incorrect')
+            messages.error(request, 'Username OR password is incorrect', extra_tags='incorrectusername')
 
     context = {}
     return render(request, 'login.html', context)
@@ -158,21 +158,29 @@ def userProfilePage(request, *args, **kwargs):
             emailForm= form.cleaned_data.get('email')
             phoneNumberForm= form.cleaned_data.get('phoneNumber')
             
-            try:
-                user, created = User.objects.update_or_create(pk=search,defaults={'first_name':firstnameForm, 'last_name':lastnameForm, 'email':emailForm,'username':usernameForm})
-                my_group = Group.objects.get(name='customer') 
-                my_group.user_set.add(user)
-                user.save()
-                customer, created = CustomUser.objects.update_or_create(pk=search, defaults={'customuser':user,'phoneNumber': phoneNumberForm})
-                customer.save()
-                
-                messages.success(request, 'User updated successfully!!')
-                return redirect('userProfile')
-            except:
-                messages.error(request, 'User with username ' + usernameForm + ' already exists!!')
+            userWithUsername = User.objects.filter(username=request.POST.get('username'))
+            userWithUsername_list = list(userWithUsername)
+            if len(userWithUsername_list) == 0:
+                try:
+                    user, created = User.objects.update_or_create(pk=search,defaults={'first_name':firstnameForm, 'last_name':lastnameForm, 'email':emailForm,'username':usernameForm})
+                    my_group = Group.objects.get(name='customer') 
+                    my_group.user_set.add(user)
+                    user.save()
+                    customer, created = CustomUser.objects.update_or_create(pk=search, defaults={'customuser':user,'phoneNumber': phoneNumberForm})
+                    customer.save()
+                    
+                    messages.success(request, 'User updated successfully!!')
+                    return redirect('userProfile')
+                except:
+                    form = CustomUserForm({'username':selectedCustomer.customuser.username,'first_name':selectedCustomer.customuser.first_name,'last_name':selectedCustomer.customuser.last_name,'email':selectedCustomer.customuser.email,'password':selectedCustomer.customuser.password,'phoneNumber':selectedCustomer.phoneNumber})
+                    context = {'form':form}
+                    return render(request, 'userProfile.html', context)
+            else:
+                messages.error(request, 'User with username ' +request.POST.get('username')+' already exists!!', extra_tags='alreadyExists')
                 form = CustomUserForm({'username':selectedCustomer.customuser.username,'first_name':selectedCustomer.customuser.first_name,'last_name':selectedCustomer.customuser.last_name,'email':selectedCustomer.customuser.email,'password':selectedCustomer.customuser.password,'phoneNumber':selectedCustomer.phoneNumber})
                 context = {'form':form}
                 return render(request, 'userProfile.html', context)
+                
     else:
         if request.user.is_authenticated:
             search = kwargs.get('pk')
@@ -242,7 +250,7 @@ def orderPage(request):
             orderForm.save()
             messages.success(request, 'Order made successfully!')
             if request.user.is_authenticated:
-                return redirect('customer')
+                return HttpResponseRedirect('/userProfile/%d'%request.user.id)
             return redirect('home')
 
     context = {'form':form}
@@ -277,7 +285,7 @@ def viewOrderPage(request, *args, **kwargs):
             search = kwargs.get('pk')
             if search:
                 selectedOrder = Order.objects.filter(pk=search).delete()
-                return redirect('adminn')
+                return HttpResponseRedirect('/userProfile/%d'%request.user.id)
     else:
         if request.user.is_authenticated:
             search = kwargs.get('pk')
@@ -287,7 +295,7 @@ def viewOrderPage(request, *args, **kwargs):
                 selectedOrder = selectedOrder_list[0]
                 userOrder = list(User.objects.filter(pk=selectedOrder.userID.pk))[0]
                 form = ViewOrderForm(instance=selectedOrder, initial={'userID':userOrder.username})
-                form.fields['title'].widget = forms.HiddenInput()
+                #form.fields['title'].widget = forms.HiddenInput()
                 context = {'form':form}
                 return render(request, 'viewOrder.html', context)
 
@@ -309,7 +317,7 @@ def contactUsFormPage(request):
             contactForm.save()
             messages.success(request, 'Message sent successfully!')
             if request.user.is_authenticated:
-                return redirect('customer')
+                return HttpResponseRedirect('/userProfile/%d'%request.user.id)
             return redirect('home')
 
     else:
@@ -345,7 +353,7 @@ def viewContactDetailsPage(request, *args, **kwargs):
             search = kwargs.get('pk')
             if search:
                 selectedContact = ContactUsForm.objects.filter(pk=search).delete()
-                return redirect('adminn')
+                return HttpResponseRedirect('/userProfile/%d'%request.user.id)
     else:
         if request.user.is_authenticated:
             search = kwargs.get('pk')

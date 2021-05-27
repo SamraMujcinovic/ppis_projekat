@@ -30,8 +30,7 @@ class OrderForm(forms.Form):
         self.fields['print_type'].widget.attrs.update({'class': "custom-radio-list"})
         self.fields['bind_type'].widget.attrs.update({'class': "custom-radio-list"})
         self.fields['color'].widget.attrs.update({'class': "custom-radio-list"})
-
-
+    
 
 class ViewOrderForm(ModelForm):
 
@@ -89,6 +88,7 @@ class CreateUserForm(UserCreationForm):
 
 
 class ContactForm(forms.Form):
+    error_css_class = 'error'
 
     name = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Your name'}))
     email = forms.EmailField(widget=forms.TextInput(attrs={'placeholder': 'Your email'}))
@@ -96,13 +96,6 @@ class ContactForm(forms.Form):
 
     fields = ['name','email','message']
 
-    def clean_email(self):
-        email = self.cleaned_data.get('email')
-        try:
-            validate_email( email )
-            return email
-        except ValidationError:
-            return ("Enter valid email!")
 
     def clean_name(self):
         name = self.cleaned_data.get('name')
@@ -151,6 +144,7 @@ class CustomUserForm(forms.Form):
         self.fields['first_name'].widget.attrs.update({'class': 'form-control'})
         self.fields['last_name'].widget.attrs.update({'class': 'form-control'})
         self.fields['phoneNumber'].widget.attrs.update({'class': 'form-control'})
+        self.fields['first_name'].widget.attrs["onchange"]="changeWelcomeTitle()"
 
 class CustomUserFormForAdmin(forms.Form):
     username = forms.CharField()
