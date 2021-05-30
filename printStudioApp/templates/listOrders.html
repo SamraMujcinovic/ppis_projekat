@@ -66,6 +66,9 @@
         tr:nth-child(even) {
             background-color: #dddddd;
         }
+		.messageDiv{
+			background-color: lightgreen;
+		}
 	</style>
 	
 	<title>Orders</title>
@@ -119,12 +122,23 @@
 		</div>
 	</div> 
 	<!-- /.navbar -->
+	
 
 	<header id="head" class="secondary"></header>
 
 	<!-- container -->
 	<div class="container">
-        
+		<br>
+		{% for message in messages %}
+		{% if 'orderDeleted' in message.tags %}
+		<div class="messageDiv">
+			<br>
+		{{ message }}
+		
+	<br>
+	</div>
+	{% endif %}
+	{% endfor %}
 		<ol class="breadcrumb">
 			<li><a href={% url 'home' %}>Home</a></li>
             {% if request.user.groups.all.0.name == "admin"%}
@@ -203,7 +217,7 @@
           
 	</div>	<!-- /container -->
 	
-
+	<br><br><br><br><br><br>
 	<footer id="footer" class="top-space">
 
 		<div class="footer1">

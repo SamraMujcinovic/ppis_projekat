@@ -33,7 +33,7 @@ from django.db.models.query_utils import Q
 from django.utils.http import urlsafe_base64_encode
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.encoding import force_bytes
-from django.core.mail import send_mail, BadHeaderError
+from django.core.mail import message, send_mail, BadHeaderError
 from rest_framework import viewsets
 
 
@@ -49,14 +49,23 @@ def registerPage(request):
             usernameForm = form.cleaned_data.get('username')
             passwordForm = form.cleaned_data.get('password1')
             phoneNumberForm = form.cleaned_data.get('phoneNumber')
-            user = User.objects.create_user(first_name=firstname, last_name=lastname, email=emailvalue,username=usernameForm,password=passwordForm)
-            user.set_password(user.password)
-            my_group = Group.objects.get(name='customer') 
-            my_group.user_set.add(user)
-            customer = CustomUser.objects.create(customuser=user,phoneNumber = phoneNumberForm)
-            customer.save()
-            messages.success(request, 'Account was created for ' + customer.customuser.username)
-            return redirect('login')
+
+            userExists = User.objects.filter(email=request.POST.get('email'))
+            userExists_list = list(userExists)
+            if len(userExists_list) != 0:
+                messages.error(request, 'Profile with email '+emailvalue+' already exists!', extra_tags='emailExists')
+                form = CreateUserForm()
+                context = {'form':form}
+                return redirect('register')
+            else:
+                user = User.objects.create_user(first_name=firstname, last_name=lastname, email=emailvalue,username=usernameForm,password=passwordForm)
+                user.set_password(user.password)
+                my_group = Group.objects.get(name='customer') 
+                my_group.user_set.add(user)
+                customer = CustomUser.objects.create(customuser=user,phoneNumber = phoneNumberForm)
+                customer.save()
+                messages.success(request, 'Account was created for ' + customer.customuser.username)
+                return redirect('login')
 
     context = {'form':form}
     return render(request, 'register.html', context)
@@ -158,9 +167,9 @@ def userProfilePage(request, *args, **kwargs):
             emailForm= form.cleaned_data.get('email')
             phoneNumberForm= form.cleaned_data.get('phoneNumber')
             
-            userWithUsername = User.objects.filter(username=request.POST.get('username'))
-            userWithUsername_list = list(userWithUsername)
-            if len(userWithUsername_list) == 0:
+            userWithEmail = list(User.objects.filter(email=request.POST.get('email')))[0]
+            print(userWithEmail.username)
+            if userWithEmail.username == usernameForm:
                 try:
                     user, created = User.objects.update_or_create(pk=search,defaults={'first_name':firstnameForm, 'last_name':lastnameForm, 'email':emailForm,'username':usernameForm})
                     my_group = Group.objects.get(name='customer') 
@@ -176,10 +185,28 @@ def userProfilePage(request, *args, **kwargs):
                     context = {'form':form}
                     return render(request, 'userProfile.html', context)
             else:
-                messages.error(request, 'User with username ' +request.POST.get('username')+' already exists!!', extra_tags='alreadyExists')
-                form = CustomUserForm({'username':selectedCustomer.customuser.username,'first_name':selectedCustomer.customuser.first_name,'last_name':selectedCustomer.customuser.last_name,'email':selectedCustomer.customuser.email,'password':selectedCustomer.customuser.password,'phoneNumber':selectedCustomer.phoneNumber})
-                context = {'form':form}
-                return render(request, 'userProfile.html', context)
+                userWithUsername = User.objects.filter(username=request.POST.get('username'))
+                userWithUsername_list = list(userWithUsername)
+                if len(userWithUsername_list) != 0:
+                    messages.error(request, 'User with username ' +request.POST.get('username')+' already exists!!', extra_tags='alreadyExists')
+                    form = CustomUserForm({'username':selectedCustomer.customuser.username,'first_name':selectedCustomer.customuser.first_name,'last_name':selectedCustomer.customuser.last_name,'email':selectedCustomer.customuser.email,'password':selectedCustomer.customuser.password,'phoneNumber':selectedCustomer.phoneNumber})
+                    context = {'form':form}
+                    return render(request, 'userProfile.html', context)
+                else:
+                    try:
+                        user, created = User.objects.update_or_create(pk=search,defaults={'first_name':firstnameForm, 'last_name':lastnameForm, 'email':emailForm,'username':usernameForm})
+                        my_group = Group.objects.get(name='customer') 
+                        my_group.user_set.add(user)
+                        user.save()
+                        customer, created = CustomUser.objects.update_or_create(pk=search, defaults={'customuser':user,'phoneNumber': phoneNumberForm})
+                        customer.save()
+                        
+                        messages.success(request, 'User updated successfully!!')
+                        return redirect('userProfile')
+                    except:
+                        form = CustomUserForm({'username':selectedCustomer.customuser.username,'first_name':selectedCustomer.customuser.first_name,'last_name':selectedCustomer.customuser.last_name,'email':selectedCustomer.customuser.email,'password':selectedCustomer.customuser.password,'phoneNumber':selectedCustomer.phoneNumber})
+                        context = {'form':form}
+                        return render(request, 'userProfile.html', context)
                 
     else:
         if request.user.is_authenticated:
@@ -245,10 +272,11 @@ def orderPage(request):
             number_of_copies = form.cleaned_data.get('number_of_copies')
             color = form.cleaned_data.get('color')
             created_at = timezone.now()
+            message = form.cleaned_data.get('message')
             
-            orderForm = Order.objects.create(userID=userOrder, orderCode=orderCode, title=title,print_type=print_type,bind_type=bind_type,number_of_copies=number_of_copies,color=color,created_at=created_at)
+            orderForm = Order.objects.create(userID=userOrder, orderCode=orderCode, title=title,print_type=print_type,bind_type=bind_type,number_of_copies=number_of_copies,color=color,created_at=created_at, message=message)
             orderForm.save()
-            messages.success(request, 'Order made successfully!')
+            messages.success(request, 'Order made successfully!', extra_tags='orderMade')
             if request.user.is_authenticated:
                 return HttpResponseRedirect('/userProfile/%d'%request.user.id)
             return redirect('home')
@@ -285,7 +313,8 @@ def viewOrderPage(request, *args, **kwargs):
             search = kwargs.get('pk')
             if search:
                 selectedOrder = Order.objects.filter(pk=search).delete()
-                return HttpResponseRedirect('/userProfile/%d'%request.user.id)
+                messages.success(request, 'Order deleted successfully!', extra_tags='orderDeleted')
+                return redirect('listOrders')
     else:
         if request.user.is_authenticated:
             search = kwargs.get('pk')
@@ -315,7 +344,7 @@ def contactUsFormPage(request):
             
             contactForm = ContactUsForm.objects.create(name=nameForm, email=emailForm, message=messageForm)
             contactForm.save()
-            messages.success(request, 'Message sent successfully!')
+            messages.success(request, 'Message sent successfully!', extra_tags='sentContact')
             if request.user.is_authenticated:
                 return HttpResponseRedirect('/userProfile/%d'%request.user.id)
             return redirect('home')
@@ -353,7 +382,8 @@ def viewContactDetailsPage(request, *args, **kwargs):
             search = kwargs.get('pk')
             if search:
                 selectedContact = ContactUsForm.objects.filter(pk=search).delete()
-                return HttpResponseRedirect('/userProfile/%d'%request.user.id)
+                messages.success(request, 'Contact form deleted successfully!', extra_tags='contactDeleted')
+                return redirect('listContactForms')
     else:
         if request.user.is_authenticated:
             search = kwargs.get('pk')

@@ -73,6 +73,9 @@
 		.divBorder {
   			border-bottom: 1px solid lightgray;
 		}
+		#id_created_at{
+			text-align: center;
+		}
   </style>
 	
 	<title>Order</title>
@@ -126,6 +129,7 @@
 		</div>
 	</div> 
 	<!-- /.navbar -->
+	
 
 	<header id="head" class="secondary"></header>
 
@@ -189,7 +193,7 @@
 						<br>
             			<div class="row">
 							<div class="col-sm-12 divBorder">
-                				<label for="title">Select a file:</label>
+                				<label for="title">Uploaded file:</label>
 								<br>
 								<div class="row">
 									
@@ -207,7 +211,7 @@
 						<br>
 						<div class="row">
 							<div class="col-sm-12 divBorder">
-                				<label for="print_type">Select a print type:</label>
+                				<label for="print_type">Selected print type:</label>
 								<br>
 								{% for type in form.print_type %}
                 					{{type}}
@@ -218,7 +222,7 @@
 						<br>
             			<div class="row">
 							<div class="col-sm-12 divBorder">
-                				<label for="bind_type">Select a bind type:</label>
+                				<label for="bind_type">Selected bind type:</label>
 								<br>
 								{% for type in form.bind_type %}
                 					{{type}}
@@ -229,13 +233,28 @@
 						
             			<div class="row">
 							<div class="col-sm-12 divBorder">
-                				<label for="color">Select color:</label>
+                				<label for="color">Selected color:</label>
 								<br>
 								{% for type in form.color %}
                 					{{type}}
 									<br>
 								{% endfor %}
 							</div>
+						</div>
+						<br>
+						<div class="row">
+							<div class="col-sm-12">
+								<label for="created_at">Created at</label>
+								<br>
+								{{form.created_at}}
+								<br>
+								<br>
+								<label for="message">Message:</label>
+								<br>
+								{{form.message}}
+								<br>
+							</div>
+							<br>
 						</div>
 						<br>
 						<div>
@@ -338,6 +357,8 @@
 	<!-- Google Maps -->
 	<script src="https://maps.googleapis.com/maps/api/js?key=&amp;sensor=false&amp;extension=.js"></script> 
 	<script src={% static 'js/google-map.js' %}></script>
+	
+	
 	
 
 </body>

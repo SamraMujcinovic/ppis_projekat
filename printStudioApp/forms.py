@@ -1,4 +1,4 @@
-from django.forms import ModelForm, CharField, fields
+from django.forms import ModelForm, CharField, fields, widgets
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django import forms
@@ -20,8 +20,10 @@ class OrderForm(forms.Form):
     bind_type = forms.ChoiceField(choices=BIND_TYPE, widget=forms.RadioSelect(attrs={'class': "custom-radio-list"}))
     number_of_copies = forms.IntegerField()
     color = forms.ChoiceField(choices=COLOR, widget=forms.RadioSelect(attrs={'class': "custom-radio-list"}))
+    message = forms.CharField(required=False, widget=forms.Textarea(attrs={'placeholder':'Leave a message if you have additional requirements...'}))
 
-    fields = ['orderCode','title','print_type','bind_type','number_of_copies','color']
+
+    fields = ['orderCode','title','print_type','bind_type','number_of_copies','color','message']
 
     def __init__(self, *args, **kwargs):
         super(OrderForm, self).__init__(*args, **kwargs)
@@ -30,6 +32,7 @@ class OrderForm(forms.Form):
         self.fields['print_type'].widget.attrs.update({'class': "custom-radio-list"})
         self.fields['bind_type'].widget.attrs.update({'class': "custom-radio-list"})
         self.fields['color'].widget.attrs.update({'class': "custom-radio-list"})
+        #self.fields['message'].widgets.attrs.update({'class':'form-control'})
     
 
 class ViewOrderForm(ModelForm):
@@ -46,12 +49,11 @@ class ViewOrderForm(ModelForm):
     number_of_copies = forms.IntegerField(disabled=True)
     color = forms.ChoiceField(choices=COLOR, widget=forms.RadioSelect, disabled=True)
     created_at = forms.DateTimeField(disabled=True)
+    message = forms.CharField(disabled=True, widget=forms.Textarea(attrs={'placeholder':'Message'}))
     
-
     class Meta:
         model = Order
         fields = '__all__'
-        
     
     def __init__(self, *args, **kwargs):
         super(ViewOrderForm, self).__init__(*args, **kwargs)
@@ -64,6 +66,7 @@ class ViewOrderForm(ModelForm):
         self.fields['print_type'].widget.attrs.update({'class': "custom-radio-list"})
         self.fields['bind_type'].widget.attrs.update({'class': "custom-radio-list"})
         self.fields['color'].widget.attrs.update({'class': "custom-radio-list"})
+        self.fields['message'].widget.attrs.update({'placeholder': 'Message'})
 
 
 

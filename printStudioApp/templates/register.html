@@ -63,7 +63,16 @@
 
 	<!-- container -->
 	<div class="container">
-
+		<br>
+		{% for message in messages %}
+		{% if 'emailExists' in message.tags %}
+			<div style="background-color:lightsalmon">
+				<br>
+				{{ message }}
+				<br>
+			</div>
+		{% endif %}
+	{% endfor %}
 		<ol class="breadcrumb">
 			<li><a href={% url 'home' %}>Home</a></li>
 			<li class="active">Registration</li>

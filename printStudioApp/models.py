@@ -25,6 +25,7 @@ class Order(models.Model):
     number_of_copies = models.IntegerField()
     color = models.CharField(max_length=20)
     created_at = models.DateTimeField(auto_now_add=False)
+    message = models.CharField(max_length=500, blank=True, null=True)
     
 
     class Meta:  
