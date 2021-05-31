@@ -147,7 +147,6 @@ class CustomUserForm(forms.Form):
         self.fields['first_name'].widget.attrs.update({'class': 'form-control'})
         self.fields['last_name'].widget.attrs.update({'class': 'form-control'})
         self.fields['phoneNumber'].widget.attrs.update({'class': 'form-control'})
-        self.fields['first_name'].widget.attrs["onchange"]="changeWelcomeTitle()"
 
 class CustomUserFormForAdmin(forms.Form):
     username = forms.CharField()

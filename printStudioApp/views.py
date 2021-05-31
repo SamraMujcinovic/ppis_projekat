@@ -8,6 +8,8 @@ from django.contrib.auth import authenticate, login, logout
 
 from django.contrib import messages
 from django import forms
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
 
 
 # Create your views here.
@@ -70,16 +72,23 @@ def registerPage(request):
     context = {'form':form}
     return render(request, 'register.html', context)
 
+def validateEmail( email ):
+    
+    try:
+        validate_email( email )
+        return True
+    except ValidationError:
+        return False
 
 def loginPage(request):
     if request.method == 'POST':
         print("uslo u login")
         
-        username = request.POST.get('username')
+        usernameForm = request.POST.get('username')
         password =request.POST.get('password')
         print(request.POST)
             
-        user = authenticate(request, username=username, password=password)
+        user = authenticate(request, username=usernameForm, password=password)
             
         if user is not None:
             login(request, user)
@@ -95,7 +104,18 @@ def loginPage(request):
              #   return HttpResponse('You are not authorized to view this page')
             return HttpResponseRedirect('/userProfile/%d'%request.user.id)
         else:
-            messages.error(request, 'Username OR password is incorrect', extra_tags='incorrectusername')
+            okMail = validateEmail(usernameForm)
+            if okMail:
+                usernamefromMail = User.objects.get(email__exact=usernameForm)
+                user = authenticate(request, username=usernamefromMail.username, password=password)
+                if user is not None:
+                    login(request, user)
+                    group = None
+                    if user.groups.exists():
+                        group = user.groups.all()[0].name
+                        return HttpResponseRedirect('/userProfile/%d'%request.user.id)
+            else:
+                messages.error(request, 'Username OR password is incorrect', extra_tags='incorrectusername')
 
     context = {}
     return render(request, 'login.html', context)
