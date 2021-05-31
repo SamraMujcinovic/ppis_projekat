@@ -114,8 +114,11 @@ def loginPage(request):
                     if user.groups.exists():
                         group = user.groups.all()[0].name
                         return HttpResponseRedirect('/userProfile/%d'%request.user.id)
+                else:
+                    messages.error(request, 'Username/email OR password is incorrect', extra_tags='incorrectusername')
+
             else:
-                messages.error(request, 'Username OR password is incorrect', extra_tags='incorrectusername')
+                messages.error(request, 'Username/email OR password is incorrect', extra_tags='incorrectusername')
 
     context = {}
     return render(request, 'login.html', context)

@@ -1,0 +1,65 @@
+Category c1 = createCategory("Dog", "Dogs are domesticated mammals, not natural wild animals. " +
+                                                            "They were originally bred from wolves. They have been bred by " +
+                                                            "humans for a long time, and were the first animals ever to be domesticated. " +
+                                                            "Today, some dogs are used as pets, others are used to help humans do their work. " +
+                                                            "They are a popular pet because they are usually playful, friendly, loyal and listen to humans. " +
+                                                            "Thirty million dogs in the United States are registered as pets. Dogs eat both meat and vegetables, " +
+                                                            "often mixed together and sold in stores as dog food. Dogs often have jobs, including as police dogs, " +
+                                                            "army dogs, assistance dogs, fire dogs, messenger dogs, hunting dogs, herding dogs, or rescue dogs. " +
+                                                            "Dogs have four legs and make a \"bark,\" \"woof,\" or \"arf\" sound. Dogs often chase cats, and most " +
+                                                            "dogs will fetch a ball or stick.Different dog breeds have different lifespans. In general, smaller dogs live longer than bigger ones. ");
+
+        Category c2 = createCategory("Cat", "Cats, also called domestic cats (Felis catus), are small, carnivorous (meat-eating) mammals, of the family Felidae." +
+                                                            "Compared to other felines, domestic cats have narrowly spaced canine teeth. This is an adaptation that helps them eat " +
+                                                            "their prey of small rodents.Cats walk very precisely.Cats, like dogs, walk directly on their toes, with the bones of their " +
+                                                            "feet making up the lower part of the leg.Most cats have five claws on their front paws, and four on their rear paws. " +
+                                                            "They have protractible (able to be extended) and retractable (able to be pulled in) claws. In their normal, relaxed " +
+                                                            "position, the claws are sheathed with the skin and fur around the paw's toe pads. Cats may extend their claws in hunting " +
+                                                            "or self-defense, climbing, kneading, or for extra traction on soft surfaces.Cats are quiet and well-behaved animals, making" +
+                                                            " them popular pets. Young kittens are playful. They can easily entertain themselves with a variety of store-bought or homemade toys." +
+                                                            " House cats have also been known to teach themselves to use lever-type doorknobs and toilet handles. With cats, there is a limit to " +
+                                                            "how far you can train them. They are at least as intelligent as dogs, but they are not pack animals." +
+                                                            "Cats are fairly independent animals. They can look after themselves and do not need as much attention as dogs do.Today, special food for " +
+                                                            "cats is widely available in the developed countries. Many house cats eat food that their owners give them. ");
+        Category c3 = createCategory("Fish", "Fish (plural: fish) are an aquatic group of vertebrates which live in water and respire (get oxygen) with gills. They do not have limbs, " +
+                                                            "like arms or legs, and they do have digits (fingers & toes).Generally speaking, fish are easier and less expensive to feed and care " +
+                                                            "for than other pets; however, they do require a proper environment and knowledgeable caretakers. Unlike many dogs and other furry " +
+                                                            "and feathered pets, fish don't develop separation anxiety or destructive behaviors when you leave them alone at home. Fish are" +
+                                                            " quiet -- you never have to worry about a barking or squawking fish upsetting the neighbors or waking a sleeping baby.Fish " +
+                                                            "come in an infinite variety of sizes, shapes and stunning, vibrant colors. Fish don't need to be walked, they don't require a " +
+                                                            "litter box, and they'll never leave a surprise for you on your brand new carpet or the afghan your mother-in-law knitted for " +
+                                                            "you last Christmas. Fish are very clean pets. A fish aquarium of any size, as long it's well maintained, can be a beautiful " +
+                                                            "addition to any room in your home. Some types of fish interact with their owners, are playful, and can even be trained to do tricks. ");
+        Category c4 = createCategory("Bird", "Birds can be wonderful companions for people who are single or live alone. Their chatter and antics can be quite amusing. Many parrots " +
+                                                             "can speak, have delightful, unique personalities, and are extremely affectionate. They can provide entertainment, companionship and hours" +
+                                                             " of pleasure. A bird can help prevent depression and provide you with a reason to get up each morning.Many birds have life expectancies that extend to 30-50 years. " +
+                                                             "Most birds should not be left alone for more than 5 hours. Like people, they need companionship and an emotional connection with " +
+                                                             "another individual—either a human or bird. birds are messy. They toss their food on the floor, shed feathers, spill their water and poop " +
+                                                             "all over the place. In order to maintain the health of your pet, you will need to clean your parrot cage on a regular basis. Perches should be " +
+                                                             "spot-cleaned weekly; the cage should be disassembled at least once a month to be thoroughly disinfected.The noise they generate can irritate your " +
+                                                             "neighbors and prompt a visit from your landlord. Birds are not compatible with most other pets. In addition, birds are not the best type of pet for young children. ");
+
+        //rase
+
+        Rase r1 = createRase("American bulldog", "The American Bulldog is stocky and muscular, but also agile and built for chasing down stray cattle and helping with farm work.American Bulldogs are intelligent " +
+                                                                 "and affectionate, which makes them great, protective family dogs; although, they have high exercise needs and require an experienced, active pet parent. With patient " +
+                                                                 "training and care, American Bulldogs can make loving family companions. If you’re looking for a loving, energetic best buddy, then this may be the dog for you!", c1);
+        Rase r2 = createRase("Bichon Frise", "The Bichon Frise is a cheerful, small dog breed with a love of mischief and a lot of love to give. With their " +
+                                                             "black eyes and fluffy white coat, the Bichon looks almost like a child’s toy.However, they do need plenty of playtime and activity, and they don’t care for being left " +
+                                                             "home alone for long hours of the day.", c1);
+        Rase r3 = createRase("British Shorthair", "The British Shorthair is an easygoing feline. She enjoys affection but isn’t needy and dislikes being carried. She’ll follow you from room to room, though, out of curiosity. " +
+                                                                  "British Shorthairs aren’t lap cats, but they do enjoy snuggling next to their people on the couch." +
+                                                                  "Size: Medium to large, with males weighing 12 to 18 pounds and females weighing 9 to 15 pounds. Coat: Short, plush, dense. Color: Blue, white, black, red, cream, smoke, " +
+                                                                  "silver and golden, plus a variety of patterns and shadings. Livespan: 12 to 17 years", c2);
+        Rase r4 = createRase("Goldfish", "Another cold-water fish, goldfish belong to the carp family. Because they enjoy cool water temperatures, keep goldfish in a separate tank from warm water fish. Avoid keeping" +
+                                                         " goldfish in a bowl, as they can grow quite long and need sufficient swimming room. Because they do grow so large, don’t overcrowd your goldfish tank. Well-kept goldfish can live for many years.", c3);
+        Rase r5 = createRase("Budgerigar", "Enjoying popularity around the world, budgies (also known as parakeets) are some of the best pet birds for good reason. When properly tamed and cared for, these birds can be extraordinarily " +
+                                                           "friendly and affectionate. On top of being small and fairly low-maintenance, budgies take well to training and can learn to perform many fun bird tricks, including learning to talk. ", c4);
+
+        //ljubimci
+
+        createPet("Rex", "Sarajevo", "image1", "", 2, false, r1);
+        createPet("Pupi", "Tuzla", "image2", "", 1, false, r2);
+        createPet("Cicko", "Zenica", "image3", "", 9, false, r3);
+        createPet("Ribica", "Neum", "image4", "", 0, false, r4);
+        createPet("Pricalica", "Brcko", "image5", "", 1, false, r5);
