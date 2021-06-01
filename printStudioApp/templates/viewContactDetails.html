@@ -176,12 +176,16 @@
 					<form method="POST" action="">
             			{% csrf_token %}
 						<div class="row">
-							<div class="col-sm-6">
+							<div class="col-sm-4">
 								{{form.name}}
                 
 							</div>
-							<div class="col-sm-6">
+							<div class="col-sm-4">
 								{{form.email}}
+               
+							</div>
+							<div class="col-sm-4">
+								{{form.created_at}}
                
 							</div>
 						</div>

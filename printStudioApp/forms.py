@@ -119,16 +119,19 @@ class ViewContactForm(ModelForm):
     name = forms.CharField(disabled = True)
     email = forms.EmailField(disabled=True)
     message = forms.CharField(widget=forms.Textarea,disabled=True)
+    created_at = forms.DateTimeField(disabled=True)
 
     class Meta:
         model = ContactUsForm
-        fields = ['name', 'email','message']
+        fields = ['name', 'email','message', 'created_at']
     
     def __init__(self, *args, **kwargs):
         super(ViewContactForm, self).__init__(*args, **kwargs)
         self.fields['name'].widget.attrs.update({'class': 'form-control'})
         self.fields['email'].widget.attrs.update({'class': 'form-control'})
         self.fields['message'].widget.attrs.update({'class': 'form-control'})
+        self.fields['created_at'].widget.attrs.update({'class': 'form-control'})
+
 
 
 class CustomUserForm(forms.Form):

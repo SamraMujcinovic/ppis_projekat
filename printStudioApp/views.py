@@ -132,7 +132,8 @@ def logoutUser(request):
 @login_required(login_url='login')
 @admin_only
 def adminPage(request):
-    orders = Order.objects.all()
+    orders = Order.objects.all().order_by('-created_at')
+
     customers = CustomUser.objects.all()
     
     total_customers = customers.count()
@@ -294,7 +295,7 @@ def orderPage(request):
             bind_type = form.cleaned_data.get('bind_type')
             number_of_copies = form.cleaned_data.get('number_of_copies')
             color = form.cleaned_data.get('color')
-            created_at = timezone.now()
+            created_at = timezone.localtime(timezone.now())
             message = form.cleaned_data.get('message')
             
             orderForm = Order.objects.create(userID=userOrder, orderCode=orderCode, title=title,print_type=print_type,bind_type=bind_type,number_of_copies=number_of_copies,color=color,created_at=created_at, message=message)
@@ -364,8 +365,9 @@ def contactUsFormPage(request):
             nameForm = form.cleaned_data.get('name')
             emailForm= form.cleaned_data.get('email')
             messageForm= form.cleaned_data.get('message')
+            created_at = timezone.localtime(timezone.now())
             
-            contactForm = ContactUsForm.objects.create(name=nameForm, email=emailForm, message=messageForm)
+            contactForm = ContactUsForm.objects.create(name=nameForm, email=emailForm, message=messageForm, created_at=created_at)
             contactForm.save()
             messages.success(request, 'Message sent successfully!', extra_tags='sentContact')
             if request.user.is_authenticated:
@@ -485,12 +487,12 @@ def password_reset_request(request):
 @allowed_users(['customer','admin'])
 def listOrders(request):
     context = {}
-    orders = Order.objects.all()
+    orders = Order.objects.all().order_by('-created_at')
 
     if request.user.groups.all()[0].name == "admin":
         context = {'orders': orders }
     else:
-        my_Orders = Order.objects.filter(userID = request.user.pk)
+        my_Orders = Order.objects.filter(userID = request.user.pk).order_by('-created-at')
         context = {'orders':my_Orders }
 
     return render(request, 'listOrders.html', context)
@@ -515,12 +517,12 @@ def listCustomers(request):
 def listContactForms(request):
     context = {}
 
-    contacts = ContactUsForm.objects.all()
+    contacts = ContactUsForm.objects.all().order_by('-created_at')
 
     if request.user.groups.all()[0].name == "admin":
         context = {'contacts': contacts }
     else:
-        my_contactForms = ContactUsForm.objects.filter(email=request.user.email)
+        my_contactForms = ContactUsForm.objects.filter(email=request.user.email).order_by('-created_at')
         context = {'contacts':my_contactForms }
 
 
